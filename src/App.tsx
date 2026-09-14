@@ -14,6 +14,7 @@ import { SystemHealthPage } from './components/health/SystemHealthPage';
 import { PrivacySpecsPage } from './components/privacy/PrivacySpecsPage';
 import { DetectionDrawer } from './components/detections/DetectionDrawer';
 import { Detection, Bus, Department } from './types';
+import { AuthPage, AuthMode } from './components/auth/AuthPage';
 import { 
   LayoutDashboard, 
   MapPin, 
@@ -52,6 +53,8 @@ export default function App() {
   const [selectedBusId, setSelectedBusId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<AuthMode>('login');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Handlers
   const handleSelectDetectionById = (id?: string) => {
@@ -70,6 +73,27 @@ export default function App() {
   const pendingCount = detections.filter(d => d.status === 'pending_verification').length;
   const criticalCount = detections.filter(d => d.severity === 'critical' && d.status !== 'resolved').length;
 
+  const handleLogin = (email: string, password: string) => {
+    if (!email || !password) return;
+    setIsAuthenticated(true);
+  };
+
+  const handleSignup = (payload: { fullName: string; email: string; agency: string; role: string; password: string }) => {
+    if (!payload.email || !payload.password || !payload.fullName) return;
+    setIsAuthenticated(true);
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <AuthPage
+        mode={authMode}
+        onModeChange={setAuthMode}
+        onLogin={handleLogin}
+        onSignup={handleSignup}
+      />
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 text-slate-900 font-sans antialiased selection:bg-blue-100 selection:text-blue-900">
       {/* Topbar */}
@@ -85,6 +109,10 @@ export default function App() {
         onSelectNotification={handleSelectDetectionById}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
+        onLogout={() => {
+          setIsAuthenticated(false);
+          setAuthMode('login');
+        }}
       />
 
       {/* Main Layout (Sidebar + Content Area) */}
@@ -143,6 +171,7 @@ export default function App() {
               buses={buses}
               detections={detections}
               routes={routes}
+              searchQuery={searchQuery}
               onSelectDetection={setSelectedDetection}
               onSelectBus={handleOpenMapForBus}
               onNavigateTab={setActiveTab}

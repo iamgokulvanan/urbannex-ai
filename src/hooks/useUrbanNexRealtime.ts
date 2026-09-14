@@ -266,7 +266,7 @@ export function useUrbanNexRealtime() {
     sendCommand({ action: 'resume' });
   }, [sendCommand]);
 
-  const setSimulationSpeed = useCallback((speed: 1 | 2 | 5) => {
+  const setSimulationSpeed = useCallback((speed: 1 | 2 | 3) => {
     sendCommand({ action: 'set_speed', speed });
   }, [sendCommand]);
 

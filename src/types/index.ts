@@ -122,7 +122,7 @@ export interface NotificationItem {
 
 export interface SimulationControlState {
   isRunning: boolean;
-  speed: 1 | 2 | 5;
+  speed: 1 | 2 | 3;
   activeBusCount: number;
   totalEventsGenerated: number;
   lastEventTime?: string;

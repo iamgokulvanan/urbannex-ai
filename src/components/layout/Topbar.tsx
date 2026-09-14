@@ -13,7 +13,8 @@ import {
   Bus as BusIcon,
   CheckCircle2,
   AlertTriangle,
-  Info
+  Info,
+  LogOut,
 } from 'lucide-react';
 import { NotificationItem, SimulationControlState } from '../../types';
 
@@ -23,12 +24,13 @@ interface TopbarProps {
   notifications: NotificationItem[];
   onPause: () => void;
   onResume: () => void;
-  onSetSpeed: (speed: 1 | 2 | 5) => void;
+  onSetSpeed: (speed: 1 | 2 | 3) => void;
   onTriggerDetection: () => void;
   onResetDemo: () => void;
   onSelectNotification?: (detectionId?: string) => void;
   searchQuery: string;
   onSearchChange: (q: string) => void;
+  onLogout?: () => void;
 }
 
 export const Topbar: React.FC<TopbarProps> = ({
@@ -43,6 +45,7 @@ export const Topbar: React.FC<TopbarProps> = ({
   onSelectNotification,
   searchQuery,
   onSearchChange,
+  onLogout,
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -104,7 +107,7 @@ export const Topbar: React.FC<TopbarProps> = ({
 
           {/* Speed Selector */}
           <div className="flex items-center bg-white border border-slate-200 rounded-lg p-0.5 text-xs font-semibold text-slate-600">
-            {([1, 2, 5] as const).map((spd) => (
+            {([1, 2, 3] as const).map((spd) => (
               <button
                 key={spd}
                 onClick={() => onSetSpeed(spd)}
@@ -272,6 +275,22 @@ export const Topbar: React.FC<TopbarProps> = ({
                   <span className="font-semibold text-blue-600">Active</span>
                 </div>
               </div>
+
+              {onLogout && (
+                <div className="pt-3 mt-3 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowProfileMenu(false);
+                      onLogout();
+                    }}
+                    className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl border border-red-200 bg-red-50 text-red-700 font-bold text-[11px] hover:bg-red-600 hover:text-white transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { 
   Bus, 
   Activity, 
@@ -22,6 +22,7 @@ interface OverviewDashboardProps {
   buses: BusType[];
   detections: Detection[];
   routes: RouteData[];
+  searchQuery?: string;
   onSelectDetection: (d: Detection) => void;
   onSelectBus: (b: BusType) => void;
   onNavigateTab: (tab: any) => void;
@@ -35,6 +36,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
   buses,
   detections,
   routes,
+  searchQuery = '',
   onSelectDetection,
   onSelectBus,
   onNavigateTab,
@@ -48,6 +50,30 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
   const criticalCount = detections.filter(d => d.severity === 'critical' && d.status !== 'resolved').length;
   const resolvedCount = detections.filter(d => d.status === 'resolved').length;
   const verifiedCount = detections.filter(d => d.status === 'verified').length;
+
+  const normalizedSearch = searchQuery.trim().toLowerCase();
+
+  const searchableDetections = useMemo(() => {
+    if (!normalizedSearch) return detections;
+
+    return detections.filter((d) => {
+      const target = [
+        d.id,
+        d.locationName,
+        d.busId,
+        d.routeId,
+        d.type,
+        d.severity,
+        d.status,
+        d.department || '',
+        d.notes || '',
+      ]
+        .join(' ')
+        .toLowerCase();
+
+      return target.includes(normalizedSearch);
+    });
+  }, [detections, normalizedSearch]);
 
   const kpis = [
     {
@@ -231,7 +257,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
           <div className="relative flex-1 min-h-[420px]">
             <MapView
               buses={buses}
-              detections={detections}
+              detections={searchableDetections}
               routes={routes}
               onSelectDetection={onSelectDetection}
               onSelectBus={onSelectBus}
@@ -246,7 +272,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
         {/* Right 5 cols: Live Activity Feed */}
         <div className="lg:col-span-5 h-[480px]">
           <DetectionFeed
-            detections={detections}
+            detections={searchableDetections}
             onSelectDetection={onSelectDetection}
             maxItems={15}
           />

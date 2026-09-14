@@ -1,8 +1,11 @@
+import dotenv from 'dotenv';
 import express from 'express';
 import http from 'http';
 import path from 'path';
 import { WebSocketServer, WebSocket } from 'ws';
 import { createServer as createViteServer } from 'vite';
+
+dotenv.config();
 import { 
   INITIAL_BUSES, 
   INITIAL_DETECTIONS, 
@@ -20,6 +23,7 @@ import { DemoInferenceService } from './src/services/aiInference.ts';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const server = http.createServer(app);
 
 app.use(express.json());
@@ -28,7 +32,7 @@ app.use(express.json());
 let buses: Bus[] = JSON.parse(JSON.stringify(INITIAL_BUSES));
 let detections: Detection[] = JSON.parse(JSON.stringify(INITIAL_DETECTIONS));
 let simulationRunning = true;
-let simulationSpeedMultiplier: 1 | 2 | 5 = 1;
+let simulationSpeedMultiplier: 1 | 2 | 3 = 1;
 let detectionCounter = 129;
 
 const demoInference = new DemoInferenceService();
@@ -95,7 +99,7 @@ function handleClientCommand(msg: { action: string; [key: string]: any }, sender
       broadcast('simulation:updated', { isRunning: true, speed: simulationSpeedMultiplier });
       break;
     case 'set_speed':
-      if ([1, 2, 5].includes(msg.speed)) {
+      if ([1, 2, 3].includes(msg.speed)) {
         simulationSpeedMultiplier = msg.speed;
         broadcast('simulation:updated', { isRunning: simulationRunning, speed: simulationSpeedMultiplier });
       }
@@ -517,7 +521,7 @@ app.post('/api/simulation/control', async (req, res) => {
     broadcast('simulation:updated', { isRunning: true, speed: simulationSpeedMultiplier });
     return res.json({ status: 'resumed' });
   } else if (action === 'set_speed') {
-    if ([1, 2, 5].includes(speed)) {
+    if ([1, 2, 3].includes(speed)) {
       simulationSpeedMultiplier = speed;
       broadcast('simulation:updated', { isRunning: simulationRunning, speed: simulationSpeedMultiplier });
       return res.json({ status: 'speed_updated', speed });
