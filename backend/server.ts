@@ -11,15 +11,15 @@ import {
   INITIAL_DETECTIONS, 
   INITIAL_ROUTES, 
   DEPARTMENTS 
-} from './src/data/seedData.ts';
+} from '../frontend/src/data/seedData.ts';
 import { 
   Bus, 
   Detection, 
   IncidentStatus, 
   Department, 
   IncidentHistoryEntry 
-} from './src/types/index.ts';
-import { DemoInferenceService } from './src/services/aiInference.ts';
+} from '../frontend/src/types/index.ts';
+import { DemoInferenceService } from '../frontend/src/services/aiInference.ts';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -540,6 +540,7 @@ app.post('/api/simulation/control', async (req, res) => {
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
+      root: path.resolve(process.cwd(), 'frontend'),
       server: { middlewareMode: true },
       appType: 'spa',
     });
